@@ -3,9 +3,9 @@ using TodoListApi.Application.DTOs;
 
 namespace TodoListApi.Application.Validators;
 
-public class CreateTodoDtoValidator: AbstractValidator<CreateTodoDto>
+public class TodoDtoValidator: AbstractValidator<TodoDto>
 {
-    public CreateTodoDtoValidator()
+    public TodoDtoValidator()
     {
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("O título é obrigatório")
