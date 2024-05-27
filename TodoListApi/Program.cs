@@ -1,5 +1,5 @@
-using System.Reflection;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using TodoListApi.Application.Ports.Repositories;
 using TodoListApi.Infrastructure.database;
 using TodoListApi.Infrastructure.Repositories;
@@ -12,7 +12,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<ITodoRepository, TodoRepository>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() });
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+builder.Services.AddFluentValidationAutoValidation(config =>
+{
+  config.DisableDataAnnotationsValidation = true;
+});
 
 builder.Services.AddSingleton(servicesProvider =>
 {
@@ -24,7 +29,6 @@ builder.Services.AddSingleton(servicesProvider =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
