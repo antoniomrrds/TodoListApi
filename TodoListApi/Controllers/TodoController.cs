@@ -13,9 +13,9 @@ namespace TodoListApi.Controllers
   {
     private readonly ITodoRepository _todoRepository;
     private readonly IMapper _mapper;
-    private readonly IValidator<CreateTodoDto> _validator;
+    private readonly IValidator<TodoDto> _validator;
 
-    public TodoController(ITodoRepository todoRepository, IMapper mapper, IValidator<CreateTodoDto> validator)
+    public TodoController(ITodoRepository todoRepository, IMapper mapper, IValidator<TodoDto> validator)
     {
       _todoRepository = todoRepository;
       _mapper = mapper;
@@ -23,7 +23,7 @@ namespace TodoListApi.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] CreateTodoDto createTodoDto)
+    public async Task<IActionResult> PostAsync([FromBody] TodoDto createTodoDto)
     {
       var validationResult = _validator.Validate(createTodoDto);
 
@@ -39,10 +39,63 @@ namespace TodoListApi.Controllers
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Todo>> GetTodosAsync()
+    public async Task<IActionResult> GetTodosAsync()
     {
-      return await _todoRepository.GetAllAsync();
+      var todos = await _todoRepository.GetAllAsync();
+      var model = _mapper.Map<IEnumerable<Todo>>(todos);
+      return Ok(model);
     }
 
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetTodoByIdAsync([FromRoute] int id)
+    {
+      var todo = await _todoRepository.GetByIdAsync(id);
+      if (todo == null)
+      {
+        return NotFound();
+      }
+      var model = _mapper.Map<Todo>(todo);
+
+      return Ok(model);
+    }
+
+    [HttpPut]
+    [Route("{id}")]
+    public async Task<IActionResult> PutAsync([FromBody] TodoDto updateTodoDto, [FromRoute] int id)
+    {
+      var todo = await _todoRepository.GetByIdAsync(id);
+      if (todo == null)
+      {
+        return NotFound();
+      }
+
+      var validationResult = _validator.Validate(updateTodoDto);
+
+      if (!validationResult.IsValid)
+      {
+        return BadRequest(validationResult);
+      }
+
+      _mapper.Map(updateTodoDto, todo); 
+      var updatedTodo = await _todoRepository.UpdateAsync(todo);
+
+      return Ok(updatedTodo);
+    }
+    
+    [HttpDelete]
+    [Route("{id}")]
+    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+    {
+      var todo = await _todoRepository.GetByIdAsync(id);
+      if (todo == null)
+      {
+        return NotFound("Todo não encontrado");
+      }
+
+      var deletedTodo = await _todoRepository.DeleteAsync(id);
+
+      return Ok(deletedTodo);
+    }
   }
 }

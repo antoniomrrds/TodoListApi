@@ -2,12 +2,13 @@ using AutoMapper;
 using TodoListApi.Application.DTOs;
 using TodoListApi.Domain.Entity;
 
-namespace TodoListApi.Application.Mappings;
-
-public class TodoProfile : Profile
+namespace TodoListApi.Application.Mappings
 {
-    public TodoProfile()
+    public class TodoProfile : Profile
     {
-        CreateMap<CreateTodoDto, Todo>();
+        public TodoProfile()
+        {
+            CreateMap<TodoDto, Todo>();
+        }
     }
 }
